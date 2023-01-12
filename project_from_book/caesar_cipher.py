@@ -1,3 +1,4 @@
+
 def caesar_cipher(message: str, key: int, mode: str = 'encrypt' or 'decrypt') -> str:
     """Шифр Цезаря
     Шифр Цезаря — шифр сдвига, в котором шифрование и дешифровка букв
@@ -36,5 +37,6 @@ def caesar_cipher(message: str, key: int, mode: str = 'encrypt' or 'decrypt') ->
     return translated
 
 
-print(caesar_cipher(message='Meet me by the rose bushes tonight.', key=4, mode='encrypt'))
+print(caesar_cipher(message='Meet me by the rose bushes tonighlt.', key=4, mode='encrypt'))
 print(caesar_cipher(message='QIIX QI FC XLI VSWI FYWLIW XSRMKLX', key=4, mode='decrypt'))
+
