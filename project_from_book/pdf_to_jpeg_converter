@@ -1,0 +1,89 @@
+import os
+from pdf2image import convert_from_path
+from PIL import Image
+
+url_root = r"E:\Education\Python\Python 3 Deep Dive full 2019\Part 4 – OOP"
+
+
+def get_path(root: 'Корневая папка' = None) -> 'возвращаем путь в виде генератора':
+    if root:
+        abspath = os.path.abspath(root)
+        for dirs_ in os.listdir(root):
+            result = os.path.join(abspath, dirs_)
+            yield result
+    else:
+        return 'Укажите абсолютный путь'
+
+
+def create_new_folder(url_folder):
+    for root, _, files in os.walk(url_folder):
+        for file in files:
+            if file.endswith('.pdf'):
+                new_folder = os.path.join(root, file[:-3])
+                if not os.path.exists(new_folder):
+                    os.mkdir(new_folder)
+
+
+def list_files(url, extensions=None):
+    for root, _, files in os.walk(url):
+        for file in files:
+            if extensions is None:
+                yield os.path.join(root, file)
+            else:
+                for ext in extensions:
+                    if file.endswith(ext):
+                        yield os.path.join(root, file)
+
+
+def get_dirs_list(url):
+    dirs_lst = []
+    for root, dirs, _ in os.walk(url):
+        if dirs:
+            for d in dirs:
+                dirs_lst.append(root + '\\' + d)
+    return dirs_lst
+
+
+def page_convertor(url):
+    for file in os.listdir(url):
+        if file and file.lower().endswith(".pdf"):
+            pages = convert_from_path(os.path.join(url, file), 150,
+                                      poppler_path=r'C:\Program Files\poppler-0.68.0\bin')
+            for i, page in enumerate(pages):
+                page.save(os.path.join(url, file.lower().replace(".pdf", f"{str(i)}.jpg")), 'JPEG')
+
+
+def arrange_files_to_directory(url):
+    dir_lst = get_dirs_list(url)
+    for file in os.listdir(url):
+        if file.lower().endswith(".jpg"):
+            for dirs in dir_lst:
+                if file[:8] == dirs.split('\\')[-1].lower()[:8]:
+                    with Image.open(os.path.join(url, file)) as im:
+                        im.save(os.path.join(dirs, file))
+                    if os.path.exists(file):
+                        os.remove(os.path.join(url, file))
+
+
+def clean_dirs_list(url):
+    for file in os.listdir(url):
+        if file and file.lower().endswith(".jpg"):
+            os.remove(os.path.join(url, file))
+
+
+def main(url):
+    create_new_folder(url)
+    print('Создал новые папки')
+    page_convertor(url)
+    print('Создал файлы')
+    arrange_files_to_directory(url)
+    print('Упаковал в папки')
+    clean_dirs_list(url)
+    print('Прибрался за собой')
+
+
+if __name__ == '__main__':
+    for url in get_path(url_root):
+        print(url)
+        main(url)
+    print('работа окончена')
